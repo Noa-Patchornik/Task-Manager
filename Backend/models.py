@@ -8,7 +8,7 @@ class Task(Document):
     title: str
     description: Optional[str] = None
     done: bool = False
-    created_at: datetime = datetime.utcnow()
+    created_at: date = datetime.today()
     deadline: Optional[date] = None
     notes: Optional[List[str]] = None
 
