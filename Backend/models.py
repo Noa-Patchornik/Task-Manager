@@ -1,5 +1,5 @@
 # models.py
-
+from pydantic import Field
 from typing import Optional, List
 from datetime import datetime, date
 from beanie import Document
@@ -8,7 +8,7 @@ class Task(Document):
     title: str
     description: Optional[str] = None
     done: bool = False
-    created_at: date = datetime.today()
+    created_at: date = Field(default_factory=date.today)
     deadline: Optional[date] = None
     notes: Optional[List[str]] = None
 
