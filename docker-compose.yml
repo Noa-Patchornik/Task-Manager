@@ -1,6 +1,11 @@
-version: "3.9"
-
 services:
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
   backend:
     build: ./backend
     ports:
@@ -10,17 +15,14 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017/tasksdb
 
-  mongo:
-    image: mongo:6
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"
+      - "3000:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: ["npm", "run", "dev"]
     depends_on:
       - backend
 

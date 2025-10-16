@@ -7,20 +7,16 @@ import About from "./pages/About";
 import AddTaskModal from "./Components/AddTaskModal";
 
 function App() {
-  // ✅ מוסיפים state לניהול פתיחה וסגירה של המודל
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ✅ פונקציה לפתיחת המודל
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
 
-  // ✅ פונקציה לסגירת המודל
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 
-  // ✅ כשמשימה חדשה מתווספת
   const handleTaskAdded = (task) => {
     console.log("Task added:", task);
     setIsModalOpen(false);
@@ -42,9 +38,9 @@ function App() {
         <Route path="/about" element={<About />} />
       </Routes>
     </Router>
-    <Footer>
-      <p>&copy; {new Date().getFullYear()} Noa's TO-DO List</p>
-    </Footer>
+      <p style={{ textAlign: "center", color: "#4164c3" }}>
+        © 2025 Task Manager App
+      </p>
     </>
   );
 }

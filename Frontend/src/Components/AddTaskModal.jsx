@@ -7,7 +7,7 @@ const AddTaskModal = ({ isOpen, onClose, onTaskAdded }) => {
   const [deadline, setDeadline] = useState("");
   const [notes, setNotes] = useState([""]);
 
-  if (!isOpen) return null; // אם המודל סגור - לא נציג כלום
+  if (!isOpen) return null; 
 
   const handleNoteChange = (index, value) => {
     const newNotes = [...notes];
@@ -36,7 +36,7 @@ const AddTaskModal = ({ isOpen, onClose, onTaskAdded }) => {
     };
 
     try {
-      const response = await axios.post("http://localhost:8000/tasks", newTask);
+      const response = await axios.post("http://backend:8000/tasks", newTask);
       onTaskAdded(response.data);
       onClose();
     } catch (error) {

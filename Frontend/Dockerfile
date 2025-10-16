@@ -1,5 +1,5 @@
 # שלב ראשון: בניית האפליקציה
-FROM node:18 AS build
+FROM node:20 AS build
 
 # נגדיר את תיקיית העבודה
 WORKDIR /app
