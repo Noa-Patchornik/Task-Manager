@@ -1,29 +1,26 @@
-
 import React from "react";
+import TaskItem from "./TaskItem";
 
-function TaskList() {
-  const tasks = [
-    { id: 1, title: "Buy milk", done: false },
-    { id: 2, title: "Study React", done: true },
-  ];
+function TaskList({ tasks, setTasks }) {
+  const handleTaskUpdated = (updatedTask) => {
+    setTasks((prev) =>
+      prev.map((t) => (t._id === updatedTask._id ? updatedTask : t))
+    );
+  };
+
+  const handleTaskDeleted = (taskId) => {
+    setTasks((prev) => prev.filter((t) => t._id !== taskId));
+  };
 
   return (
-    <div>
+    <div className="task-list">
       {tasks.map((task) => (
-        <div
-          key={task.id}
-          style={{
-            backgroundColor: task.done ? "#d4edda" : "#f8d7da",
-            padding: "12px 20px",
-            margin: "10px 0",
-            borderRadius: "10px",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <span>{task.title}</span>
-          <span>{task.done ? "✅" : "❌"}</span>
-        </div>
+        <TaskItem
+          key={task._id}
+          task={task}
+          onTaskUpdated={handleTaskUpdated}
+          onTaskDeleted={handleTaskDeleted}
+        />
       ))}
     </div>
   );

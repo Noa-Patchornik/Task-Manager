@@ -1,96 +1,83 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { addTask } from "../services/tasksServices";
 
-const AddTaskModal = ({ isOpen, onClose, onTaskAdded }) => {
+function AddTaskModal({ isOpen, onClose, onTaskAdded }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [deadline, setDeadline] = useState("");
   const [notes, setNotes] = useState([""]);
+  const [loading, setLoading] = useState(false);
 
-  if (!isOpen) return null; 
-
-  const handleNoteChange = (index, value) => {
-    const newNotes = [...notes];
-    newNotes[index] = value;
-    setNotes(newNotes);
-  };
-
-  const handleAddNote = () => {
-    setNotes([...notes, ""]);
-  };
+  if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!title.trim()) {
-      alert("Please enter a title");
+      alert("Title is required");
       return;
     }
 
-    const newTask = {
-      title,
-      description: description || null,
+    const taskData = {
+      title: title.trim(),
+      description: description?.trim() || null,
       deadline: deadline || null,
-      notes: notes.filter((n) => n.trim() !== ""),
+      notes: notes.filter((n) => n && n.trim() !== ""),
       done: false,
-      created_at: new Date().toISOString().split("T")[0],
     };
 
+    setLoading(true);
     try {
-      const response = await axios.post("http://backend:8000/tasks", newTask);
-      onTaskAdded(response.data);
-      onClose();
+      const newTask = await addTask(taskData);
+      if (onTaskAdded) onTaskAdded(newTask); 
+      setTitle("");
+      setDescription("");
+      setDeadline("");
+      setNotes([""]);
     } catch (error) {
       console.error("Error adding task:", error);
-      alert("Failed to add task. Please check console for details.");
+      alert("Error adding task");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <h2>Add a New Task</h2>
+        <h2>Add New Task</h2>
         <form onSubmit={handleSubmit}>
           <label>Title*</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
 
           <label>Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows="3"
-          />
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
 
           <label>Deadline</label>
-          <input
-            type="date"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-          />
+          <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
 
           <label>Notes</label>
-          {notes.map((note, index) => (
+          {notes.map((note, idx) => (
             <input
-              key={index}
+              key={idx}
               type="text"
               value={note}
-              onChange={(e) => handleNoteChange(index, e.target.value)}
-              placeholder={`Note ${index + 1}`}
+              onChange={(e) => {
+                const copy = [...notes];
+                copy[idx] = e.target.value;
+                setNotes(copy);
+              }}
             />
           ))}
-          <button type="button" className="add-note-btn" onClick={handleAddNote}>
+          <button type="button" onClick={() => setNotes([...notes, ""])}>
             + Add another note
           </button>
 
-          <div className="modal-buttons">
-            <button type="submit" className="save-btn">
-              Save
+          <div style={{ marginTop: 12 }}>
+            <button type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Add Task"}
             </button>
-            <button type="button" className="cancel-btn" onClick={onClose}>
+            <button type="button" onClick={onClose}>
               Cancel
             </button>
           </div>
@@ -98,6 +85,6 @@ const AddTaskModal = ({ isOpen, onClose, onTaskAdded }) => {
       </div>
     </div>
   );
-};
+}
 
 export default AddTaskModal;

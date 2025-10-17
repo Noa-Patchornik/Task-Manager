@@ -1,19 +1,56 @@
+# version: "3.9"
+
+# services:
+#   backend:
+#     build: ./backend
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       - mongo
+#     environment:
+#       - MONGO_URI=mongodb://mongo:27017/tasksdb
+
+#   mongo:
+#     image: mongo:6
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongo_data:/data/db
+
+#   frontend:
+#     build: ./frontend
+#     ports:
+#       - "3000:80"
+#     depends_on:
+#       - backend
+
+# volumes:
+#   mongo_data:
+
+
+version: "3.9"
+
 services:
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/tasksdb
+    depends_on:
+      - mongo
+    volumes:
+      - ./backend:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
   mongo:
     image: mongo:6
+    container_name: mongo
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    depends_on:
-      - mongo
-    environment:
-      - MONGO_URI=mongodb://mongo:27017/tasksdb
 
   frontend:
     build: ./frontend
@@ -22,9 +59,13 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: ["npm", "run", "dev"]
+    environment:
+      # - VITE_API_URL=http://backend:8000
+      - VITE_API_URL=http://localhost:8000
     depends_on:
       - backend
+    command: ["npm", "run", "dev", "--", "--host"]
 
 volumes:
   mongo_data:
+

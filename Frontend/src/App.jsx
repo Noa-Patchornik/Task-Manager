@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./Components/Navbar";
@@ -8,42 +7,33 @@ import AddTaskModal from "./Components/AddTaskModal";
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tasks, setTasks] = useState([]); 
+  const [loading, setLoading] = useState(true);
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleTaskAdded = (task) => {
-    console.log("Task added:", task);
-    setIsModalOpen(false);
+  const handleTaskAdded = (newTask) => {
+    setTasks((prev) => [...prev, newTask]); 
+    setIsModalOpen(false); 
   };
 
   return (
-    <>
     <Router>
-      <Navbar onAddTaskClick={handleOpenModal} />
+      <Navbar onAddTaskClick={() => setIsModalOpen(true)} />
 
       <AddTaskModal
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        onClose={() => setIsModalOpen(false)}
         onTaskAdded={handleTaskAdded}
       />
 
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={<Home tasks={tasks} setTasks={setTasks} loading={loading} setLoading={setLoading} />}
+        />
         <Route path="/about" element={<About />} />
       </Routes>
     </Router>
-      <p style={{ textAlign: "center", color: "#4164c3" }}>
-        © 2025 Task Manager App
-      </p>
-    </>
   );
 }
 
 export default App;
-
