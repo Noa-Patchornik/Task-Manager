@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body
 from beanie import PydanticObjectId
 from models import Task
 from typing import Optional, List
@@ -10,29 +10,19 @@ router = APIRouter()
 @router.put("/tasks/{id}")
 async def update_task(
     id: str,
-    title: Optional[str] = None,
-    description: Optional[str] = None,
-    done: Optional[bool] = None,
-    deadline: Optional[date] = None,
-    notes: Optional[List[str]] = None
+    data: dict = Body(...)
 ):
     """
-    update an existing task, only the fields that sent. Can't change the field "created at"
+    Update an existing task from a JSON body
     """
     task = await Task.get(PydanticObjectId(id))
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    if title is not None:
-        task.title = title
-    if description is not None:
-        task.description = description
-    if done is not None:
-        task.done = done
-    if deadline is not None:
-        task.deadline = deadline
-    if notes is not None:
-        task.notes = notes
+    allowed_fields = {"title", "description", "done", "deadline", "notes"}
+    for key, value in data.items():
+        if key in allowed_fields:
+            setattr(task, key, value)
 
     await task.save()
     return task
