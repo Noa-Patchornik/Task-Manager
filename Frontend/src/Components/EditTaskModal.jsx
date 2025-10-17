@@ -5,19 +5,39 @@ function EditTaskModal({ task, onClose, onTaskUpdated }) {
   const [formData, setFormData] = useState({
     title: task.title,
     description: task.description || "",
+    deadline: task.deadline ? task.deadline.split("T")[0] : "", // yyyy-mm-dd
+    notes: task.notes || [],
   });
+
+  const [newNote, setNewNote] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const addNote = () => {
+    if (newNote.trim() === "") return;
+    setFormData({ ...formData, notes: [...formData.notes, newNote] });
+    setNewNote("");
+  };
+
+  const removeNote = (index) => {
+    const updatedNotes = formData.notes.filter((_, i) => i !== index);
+    setFormData({ ...formData, notes: updatedNotes });
+  };
+
   const handleSave = async () => {
     try {
-      const updated = await updateTask(task._id, formData);
-      onTaskUpdated(updated);
-      onClose();
+        const cleanData = {
+            ...formData,
+            deadline: formData.deadline || null, 
+        };
+       const updated = await updateTask(task._id, cleanData);
+       onTaskUpdated(updated);
+       onClose(); // סוגר את המודל אחרי שמירה
     } catch (err) {
-      console.error("Error updating task:", err);
+       console.error("Error updating task:", err);
+       alert("אירעה שגיאה בעדכון המשימה. בדקי את ההתחברות לשרת.");
     }
   };
 
@@ -41,12 +61,15 @@ function EditTaskModal({ task, onClose, onTaskUpdated }) {
           backgroundColor: "#fff",
           borderRadius: "16px",
           padding: "30px",
-          width: "400px",
+          width: "420px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+          maxHeight: "85vh",
+          overflowY: "auto",
         }}
       >
         <h2 style={{ marginBottom: "20px" }}>עריכת משימה</h2>
 
+        {/* כותרת */}
         <div style={{ marginBottom: "15px" }}>
           <label>כותרת</label>
           <input
@@ -64,6 +87,7 @@ function EditTaskModal({ task, onClose, onTaskUpdated }) {
           />
         </div>
 
+        {/* תיאור */}
         <div style={{ marginBottom: "15px" }}>
           <label>תיאור</label>
           <textarea
@@ -77,10 +101,93 @@ function EditTaskModal({ task, onClose, onTaskUpdated }) {
               border: "1px solid #ccc",
               marginTop: "4px",
               resize: "none",
+              minHeight: "60px",
             }}
           />
         </div>
 
+        {/* דדליין */}
+        <div style={{ marginBottom: "15px" }}>
+          <label>דדליין</label>
+          <input
+            type="date"
+            name="deadline"
+            value={formData.deadline}
+            onChange={handleChange}
+            style={{
+              width: "100%",
+              padding: "8px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+              marginTop: "4px",
+            }}
+          />
+        </div>
+
+        {/* הערות */}
+        <div style={{ marginBottom: "15px" }}>
+          <label>הערות</label>
+          <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+            <input
+              type="text"
+              value={newNote}
+              onChange={(e) => setNewNote(e.target.value)}
+              placeholder="הוספת הערה חדשה"
+              style={{
+                flex: 1,
+                padding: "8px",
+                borderRadius: "8px",
+                border: "1px solid #ccc",
+              }}
+            />
+            <button
+              onClick={addNote}
+              style={{
+                backgroundColor: "#2563eb",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                padding: "8px 12px",
+                cursor: "pointer",
+              }}
+            >
+              ➕
+            </button>
+          </div>
+
+          {formData.notes.length > 0 && (
+            <ul style={{ marginTop: "8px", paddingLeft: "20px" }}>
+              {formData.notes.map((note, i) => (
+                <li
+                  key={i}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "4px",
+                    fontSize: "14px",
+                  }}
+                >
+                  <span>{note}</span>
+                  <button
+                    onClick={() => removeNote(i)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "#ef4444",
+                      fontSize: "16px",
+                    }}
+                  >
+                    ❌
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* כפתורי פעולה */}
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <button
             onClick={handleSave}

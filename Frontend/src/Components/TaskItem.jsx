@@ -3,7 +3,6 @@ import { updateTask, deleteTask } from "../services/tasksServices";
 import AlertConfirm from "./AlertConfirm";
 import EditTaskModal from "./EditTaskModal";
 
-
 function TaskItem({ task, onTaskUpdated, onTaskDeleted }) {
   const [isDone, setIsDone] = useState(task.done);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -31,7 +30,6 @@ function TaskItem({ task, onTaskUpdated, onTaskDeleted }) {
     }
   };
 
-
   const bgColor = isDone ? "#d9fdd3" : "#ffe3e3";
   const borderColor = isDone ? "#7cd67c" : "#f28b82";
 
@@ -47,6 +45,7 @@ function TaskItem({ task, onTaskUpdated, onTaskDeleted }) {
           onCancel={() => setShowConfirm(false)}
         />
       )}
+
       {showEdit && (
         <EditTaskModal
           task={task}
@@ -63,14 +62,14 @@ function TaskItem({ task, onTaskUpdated, onTaskDeleted }) {
           padding: "14px 18px",
           marginBottom: "12px",
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
           justifyContent: "space-between",
           transition: "all 0.2s ease",
           boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
         }}
       >
-        {/* עיפרון ופח */}
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        {/* כפתורי עריכה ומחיקה */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
           <span
             role="button"
             onClick={(e) => {
@@ -93,24 +92,52 @@ function TaskItem({ task, onTaskUpdated, onTaskDeleted }) {
           </span>
         </div>
 
+        {/* תוכן המשימה */}
         <div
           style={{
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            gap: "4px",
+            gap: "6px",
+            textAlign: "left",
+            padding: "0 15px",
           }}
         >
-          <strong style={{ fontSize: "16px", color: "#333" }}>
-            {task.title}
-          </strong>
+          <strong style={{ fontSize: "16px", color: "#333" }}>{task.title}</strong>
+
           {task.description && (
-            <p style={{ margin: 0, fontSize: "14px", color: "#555" }}>
-              {task.description}
+            <p style={{ margin: 0, fontSize: "14px", color: "#555" }}>{task.description}</p>
+          )}
+
+          {task.deadline && (
+            <p style={{ margin: 0, fontSize: "13px", color: "#666" }}>
+              📅 <b>דדליין:</b>{" "}
+              {new Date(task.deadline).toLocaleDateString("he-IL")}
             </p>
+          )}
+
+          {task.notes && task.notes.length > 0 && (
+            <div
+              style={{
+                marginTop: "4px",
+                backgroundColor: "rgba(255,255,255,0.6)",
+                borderRadius: "8px",
+                padding: "6px 10px",
+              }}
+            >
+              <b>הערות:</b>
+              <ul style={{ margin: "4px 0 0 18px", padding: 0 }}>
+                {task.notes.map((note, i) => (
+                  <li key={i} style={{ fontSize: "13px", color: "#555" }}>
+                    {note}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
 
+        {/* Checkbox */}
         <input
           type="checkbox"
           checked={isDone}
@@ -123,6 +150,7 @@ function TaskItem({ task, onTaskUpdated, onTaskDeleted }) {
             height: "20px",
             cursor: "pointer",
             accentColor: isDone ? "#34a853" : "#ea4335",
+            marginTop: "5px",
           }}
         />
       </div>
