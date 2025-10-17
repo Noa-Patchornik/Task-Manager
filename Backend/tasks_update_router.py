@@ -10,22 +10,28 @@ router = APIRouter()
 @router.put("/tasks/{id}")
 async def update_task(
     id: str,
-    data: dict = Body(...)
+    data: dict = Body(...),
 ):
     """
-    Update an existing task from a JSON body
+    Update an existing task (from JSON body)
     """
     task = await Task.get(PydanticObjectId(id))
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
     allowed_fields = {"title", "description", "done", "deadline", "notes"}
+
+
     for key, value in data.items():
         if key in allowed_fields:
-            setattr(task, key, value)
+            if key == "deadline" and (value == "" or value is None):
+                setattr(task, key, None)
+            else:
+                setattr(task, key, value)
 
     await task.save()
     return task
+
 
 
 @router.patch("/tasks/{id}/add_note")

@@ -10,6 +10,8 @@ router = APIRouter()
 # creat new task
 @router.post("/tasks")
 async def create_task(task: Task):
+    if task.deadline == "":
+        task.deadline = None
     await task.insert()
     return task
 
